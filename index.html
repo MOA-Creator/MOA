@@ -37,6 +37,10 @@ html{
     scroll-behavior:smooth;
 }
 
+[hidden]{
+    display:none !important;
+}
+
 body{
     font-family:Arial,Helvetica,sans-serif;
     background:#050505;
@@ -342,6 +346,24 @@ footer{
     border-radius:7px;
 }
 
+.dev-link{
+    color:#ff4a4a;
+    border:1px solid #3a1010;
+    background:#120505;
+    border-radius:999px;
+    padding:0 14px;
+}
+
+.dev-link:hover{
+    border-color:#e71919;
+}
+
+footer .dev-link{
+    display:inline-block;
+    margin-top:12px;
+    font-size:14px;
+}
+
 @media(max-width:800px){
 
     nav{
@@ -381,6 +403,7 @@ footer{
         <a href="#modes">Click Modes</a>
         <a href="#download">Download</a>
         <a href="#faq">FAQ</a>
+        <a href="./dev.html" class="dev-link" data-dev-only hidden>Dev</a>
     </nav>
 
 </div>
@@ -657,7 +680,11 @@ footer{
     © 2026 M.O.A. All rights reserved.
 </p>
 
+<a href="./dev.html" class="dev-link" data-dev-only hidden>Dev</a>
+
 </footer>
+
+<script type="module" src="./tracker.js"></script>
 
 </body>
 </html>
