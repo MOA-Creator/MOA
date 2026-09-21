@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://MOA-Creator.github.io/MoonLight/sitemap.xml
+Sitemap: https://moa-creator.github.io/MOA/sitemap.xml
