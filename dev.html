@@ -248,7 +248,7 @@ main{
 <script type="module">
 import { guardDevPage, forget } from "./access.js";
 
-if (guardDevPage()) {
+if (await guardDevPage()) {
     document.getElementById("signout").addEventListener("click", () => {
         forget();
         window.location.href = "./index.html";
