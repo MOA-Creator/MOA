@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+
+<title>Dev - M.O.A</title>
+
+<link rel="icon" type="image/png" href="./assets/icon.png">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#050505;
+    color:#fff;
+    line-height:1.6;
+    min-height:100vh;
+}
+
+a{
+    color:inherit;
+    text-decoration:none;
+}
+
+header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+    background:rgba(5,5,5,.92);
+    border-bottom:1px solid #1f1f1f;
+    backdrop-filter:blur(12px);
+}
+
+.navbar{
+    max-width:1100px;
+    margin:auto;
+    padding:18px 25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:21px;
+    font-weight:bold;
+}
+
+.logo img{
+    width:42px;
+    height:42px;
+    object-fit:contain;
+    border-radius:10px;
+}
+
+.logo small{
+    color:#ff4a4a;
+    border:1px solid #3a1010;
+    background:#120505;
+    border-radius:999px;
+    padding:2px 10px;
+    font-size:12px;
+    font-weight:normal;
+}
+
+.button{
+    display:inline-block;
+    padding:10px 18px;
+    border-radius:10px;
+    font-weight:bold;
+    font-size:14px;
+    cursor:pointer;
+    border:1px solid #333;
+    background:#111;
+    color:#ddd;
+    transition:.2s;
+}
+
+.button:hover{
+    border-color:#e71919;
+    color:#fff;
+}
+
+main{
+    max-width:1100px;
+    margin:auto;
+    padding:60px 25px 90px;
+}
+
+.top-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:35px;
+}
+
+.top-row h1{
+    font-size:38px;
+    line-height:1.1;
+}
+
+.top-row p{
+    color:#888;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+}
+
+.stat{
+    background:#0c0c0c;
+    border:1px solid #1f1f1f;
+    border-radius:16px;
+    padding:26px;
+}
+
+.stat .label{
+    color:#888;
+    font-size:14px;
+    margin-bottom:8px;
+}
+
+.stat .value{
+    font-size:40px;
+    font-weight:bold;
+    color:#ff2929;
+    line-height:1.1;
+}
+
+.notice{
+    margin-top:22px;
+    background:#0c0c0c;
+    border:1px solid #2a2a2a;
+    border-radius:16px;
+    padding:28px;
+    color:#aaa;
+}
+
+.notice h2{
+    color:#fff;
+    font-size:19px;
+    margin-bottom:10px;
+}
+
+.notice p{
+    margin-bottom:10px;
+}
+
+@media(max-width:800px){
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .top-row h1{
+        font-size:30px;
+    }
+
+    .stat .value{
+        font-size:32px;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="navbar">
+
+    <a href="./" class="logo">
+        <img src="./assets/icon.png" alt="M.O.A logo">
+        <span>M.O.A</span>
+        <small>DEV</small>
+    </a>
+
+    <button class="button" id="signout" type="button">Sign out</button>
+
+</div>
+
+</header>
+
+<main>
+
+    <div class="top-row">
+        <div>
+            <h1>Site stats</h1>
+            <p>Only visible to recognized developer emails.</p>
+        </div>
+    </div>
+
+    <div class="stats">
+
+        <div class="stat">
+            <div class="label">Website visits</div>
+            <div class="value">—</div>
+        </div>
+
+        <div class="stat">
+            <div class="label">Unique visitors</div>
+            <div class="value">—</div>
+        </div>
+
+        <div class="stat">
+            <div class="label">Found via search</div>
+            <div class="value">—</div>
+        </div>
+
+        <div class="stat">
+            <div class="label">Downloads</div>
+            <div class="value">—</div>
+        </div>
+
+    </div>
+
+    <div class="notice">
+        <h2>Numbers aren't connected yet</h2>
+        <p>
+            This page checks your email and keeps ordinary visitors out, but it has
+            no way to count other people's visits by itself - a static site with no
+            backend can't remember what other browsers did.
+        </p>
+        <p>
+            To make the numbers above real, this page needs to read them from
+            somewhere. Ask me when you're ready to wire that up.
+        </p>
+    </div>
+
+</main>
+
+<script type="module">
+import { guardDevPage, forget } from "./access.js";
+
+if (guardDevPage()) {
+    document.getElementById("signout").addEventListener("click", () => {
+        forget();
+        window.location.href = "./index.html";
+    });
+}
+</script>
+
+</body>
+</html>

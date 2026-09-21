@@ -347,15 +347,12 @@ footer{
 }
 
 .dev-link{
-    color:#ff4a4a;
-    border:1px solid #3a1010;
-    background:#120505;
-    border-radius:999px;
-    padding:0 14px;
+    color:#555;
+    font-size:14px;
 }
 
 .dev-link:hover{
-    border-color:#e71919;
+    color:#888;
 }
 
 footer .dev-link{
@@ -403,7 +400,7 @@ footer .dev-link{
         <a href="#modes">Click Modes</a>
         <a href="#download">Download</a>
         <a href="#faq">FAQ</a>
-        <a href="./dev.html" class="dev-link" data-dev-only hidden>Dev</a>
+        <a href="#" class="dev-link" id="dev-link-nav">Dev</a>
     </nav>
 
 </div>
@@ -680,11 +677,19 @@ footer .dev-link{
     © 2026 M.O.A. All rights reserved.
 </p>
 
-<a href="./dev.html" class="dev-link" data-dev-only hidden>Dev</a>
+<a href="#" class="dev-link" id="dev-link-footer">Dev</a>
 
 </footer>
 
-<script type="module" src="./tracker.js"></script>
+<script type="module">
+import { promptDevAndGo } from "./access.js";
+document.querySelectorAll("#dev-link-nav, #dev-link-footer").forEach((el) => {
+    el.addEventListener("click", (e) => {
+        e.preventDefault();
+        promptDevAndGo();
+    });
+});
+</script>
 
 </body>
 </html>
