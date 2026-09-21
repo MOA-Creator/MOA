@@ -9,7 +9,7 @@ service cloud.firestore {
     function isDev() {
       return request.auth != null
           && request.auth.token.email_verified == true
-          && request.auth.token.email in ['YOUR_EMAIL@gmail.com'];
+          && request.auth.token.email in ['carloss.jubran@gmail.com'];
     }
 
     // Visitors may only ever ADD 1 to these counters - nothing else.
