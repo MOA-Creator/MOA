@@ -6,5 +6,5 @@
 // visitors out of the Dev page - it does not stop a determined technical person.
 
 export const DEV_EMAILS = [
-  "you@gmail.com"
+  "carloss.jubran@gmail.com"
 ];
