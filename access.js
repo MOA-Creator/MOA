@@ -1,21 +1,21 @@
 // Client-side Dev gate for M.O.A - no backend, no login service.
 // Ordinary visitors never get past this. It is NOT real security - see
-// dev-emails.js for why - but it does exactly what was asked for: a button
-// that checks the email you type and only lets recognized devs through.
+// dev-codes.js for why - but it does exactly what was asked for: a button
+// that checks a code and only lets recognized devs through.
 
-import { DEV_EMAILS } from "./dev-emails.js";
+import { DEV_CODES } from "./dev-codes.js";
 
-const FLAG = "moaDevEmail";
+const FLAG = "moaDevCode";
 
-const clean = (email) => String(email || "").trim().toLowerCase();
-const isDev = (email) => DEV_EMAILS.map(clean).includes(clean(email));
+const clean = (code) => String(code || "").trim().toLowerCase();
+const isDev = (code) => DEV_CODES.map(clean).includes(clean(code));
 
-function rememberedEmail() {
+function rememberedCode() {
   try { return localStorage.getItem(FLAG) || ""; } catch { return ""; }
 }
 
-function remember(email) {
-  try { localStorage.setItem(FLAG, clean(email)); } catch {}
+function remember(code) {
+  try { localStorage.setItem(FLAG, clean(code)); } catch {}
 }
 
 export function forget() {
@@ -24,27 +24,27 @@ export function forget() {
 
 // Used by the "Dev" link on the public site.
 export function promptDevAndGo() {
-  if (isDev(rememberedEmail())) {
+  if (isDev(rememberedCode())) {
     window.location.href = "./dev.html";
     return;
   }
-  const email = window.prompt("Developer email:");
-  if (email === null) return; // they hit cancel
-  if (isDev(email)) {
-    remember(email);
+  const code = window.prompt("Developer access code:");
+  if (code === null) return; // they hit cancel
+  if (isDev(code)) {
+    remember(code);
     window.location.href = "./dev.html";
   } else {
-    window.alert("That email isn't on the developer list.");
+    window.alert("That code isn't recognized.");
   }
 }
 
 // Used at the top of dev.html. Returns true if the page should render.
 export function guardDevPage() {
-  if (isDev(rememberedEmail())) return true;
+  if (isDev(rememberedCode())) return true;
 
-  const email = window.prompt("Developer email:");
-  if (email !== null && isDev(email)) {
-    remember(email);
+  const code = window.prompt("Developer access code:");
+  if (code !== null && isDev(code)) {
+    remember(code);
     return true;
   }
   window.location.href = "./index.html";
