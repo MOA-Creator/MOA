@@ -1,24 +1,19 @@
-// Cloudflare Pages Function — runs on Cloudflare's servers, never in the
-// visitor's browser. This is what makes the check real: the GitHub token
-// and the actual code live here, in environment variables, not in any
-// file that gets shipped to the site.
-//
-// URL: POST /api/check-code   body: { "code": "whatever the visitor typed" }
-// Reply: { "ok": true } or { "ok": false }
+// TEMPORARY debug version — reports *why* a check failed (missing env
+// vars, GitHub API status, etc.) without ever exposing the token or the
+// actual code. Swap back to the plain version once this is working.
 
 export async function onRequestPost(context) {
   try {
     const { code } = await context.request.json();
     const guess = String(code || "").trim().toLowerCase();
 
-    const token = context.env.GITHUB_TOKEN;      // set in Cloudflare Pages settings
-    const owner = context.env.DEVCODES_OWNER;    // your GitHub username
+    const token = context.env.GITHUB_TOKEN;
+    const owner = context.env.DEVCODES_OWNER;
     const repo = "DevCodes";
     const path = "Code.txt";
 
     if (!token || !owner) {
-      // Env vars aren't set up yet — fail closed, not open.
-      return json({ ok: false });
+      return json({ ok: false, debug: "missing GITHUB_TOKEN or DEVCODES_OWNER env var" });
     }
 
     const ghRes = await fetch(
@@ -33,22 +28,22 @@ export async function onRequestPost(context) {
     );
 
     if (!ghRes.ok) {
-      // Wrong token, wrong repo/path, or GitHub hiccup — fail closed.
-      return json({ ok: false });
+      return json({ ok: false, debug: `GitHub API returned status ${ghRes.status}` });
     }
 
     const text = await ghRes.text();
 
-    // Code.txt looks like: "Code: your-code-here"
-    // Supports one code per line if you add more later.
     const validCodes = text
       .split("\n")
       .map((line) => line.replace(/^Code:\s*/i, "").trim().toLowerCase())
       .filter(Boolean);
 
-    return json({ ok: validCodes.includes(guess) });
+    return json({
+      ok: validCodes.includes(guess),
+      debug: `read file OK, found ${validCodes.length} code(s), match: ${validCodes.includes(guess)}`,
+    });
   } catch (err) {
-    return json({ ok: false });
+    return json({ ok: false, debug: `exception: ${String(err)}` });
   }
 }
 
