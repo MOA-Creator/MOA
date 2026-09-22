@@ -202,7 +202,7 @@ main{
     <div class="top-row">
         <div>
             <h1>Site stats</h1>
-            <p>Only visible to recognized developer emails.</p>
+            <p>Only visible with the right access codes.</p>
         </div>
     </div>
 
@@ -210,49 +210,59 @@ main{
 
         <div class="stat">
             <div class="label">Website visits</div>
-            <div class="value">—</div>
+            <div class="value" id="stat-visits">—</div>
         </div>
 
         <div class="stat">
             <div class="label">Unique visitors</div>
-            <div class="value">—</div>
+            <div class="value" id="stat-unique">—</div>
         </div>
 
         <div class="stat">
             <div class="label">Found via search</div>
-            <div class="value">—</div>
+            <div class="value" id="stat-search">—</div>
         </div>
 
         <div class="stat">
             <div class="label">Downloads</div>
-            <div class="value">—</div>
+            <div class="value" id="stat-downloads">—</div>
         </div>
 
     </div>
 
-    <div class="notice">
-        <h2>Numbers aren't connected yet</h2>
-        <p>
-            This page checks your email and keeps ordinary visitors out, but it has
-            no way to count other people's visits by itself - a static site with no
-            backend can't remember what other browsers did.
-        </p>
-        <p>
-            To make the numbers above real, this page needs to read them from
-            somewhere. Ask me when you're ready to wire that up.
-        </p>
+    <div class="notice" id="notice">
+        <h2 id="notice-title">Loading live stats...</h2>
+        <p id="notice-line1">Pulling numbers from GoatCounter.</p>
+        <p id="notice-line2"></p>
     </div>
 
 </main>
 
 <script type="module">
 import { guardDevPage, forget } from "./access.js";
+import { loadStats } from "./stats.js";
 
 if (await guardDevPage()) {
     document.getElementById("signout").addEventListener("click", () => {
         forget();
         window.location.href = "./index.html";
     });
+
+    try {
+        const stats = await loadStats();
+        document.getElementById("stat-visits").textContent = stats.visits.toLocaleString();
+        document.getElementById("stat-unique").textContent = stats.unique.toLocaleString();
+        document.getElementById("stat-search").textContent = stats.fromSearch.toLocaleString();
+        document.getElementById("stat-downloads").textContent = stats.downloads.toLocaleString();
+        document.getElementById("notice").remove();
+    } catch (err) {
+        document.getElementById("notice-title").textContent = "Couldn't load live stats";
+        document.getElementById("notice-line1").textContent =
+            "The GoatCounter API call failed: " + err.message;
+        document.getElementById("notice-line2").textContent =
+            "Check the token in goatcounter-config.js has \"Read statistics\" " +
+            "permission, and check the browser console (F12) for a CORS error.";
+    }
 }
 </script>
 
