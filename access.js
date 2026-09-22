@@ -1,33 +1,20 @@
-// Client-side Dev gate for M.O.A.
-// The actual code now lives server-side (see functions/api/check-code.js
-// and the private DevCodes repo) - this file just asks that endpoint
-// "is this code right?" and never sees the real answer itself.
+// Client-side Dev gate for M.O.A - no backend, no login service.
+// Checks the code right in the browser and, if it matches, sends the
+// visitor to dev.html in this same tab.
+
+import { DEV_CODES } from "./dev-codes.js";
 
 const FLAG = "moaDevCode";
 
-async function checkCode(code) {
-  const clean = String(code || "").trim().toLowerCase();
-  if (!clean) return false;
-  try {
-    const res = await fetch("/api/check-code", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: clean }),
-    });
-    if (!res.ok) return false;
-    const data = await res.json();
-    return !!data.ok;
-  } catch {
-    return false;
-  }
-}
+const clean = (code) => String(code || "").trim().toLowerCase();
+const isDev = (code) => DEV_CODES.map(clean).includes(clean(code));
 
 function rememberedCode() {
   try { return localStorage.getItem(FLAG) || ""; } catch { return ""; }
 }
 
 function remember(code) {
-  try { localStorage.setItem(FLAG, String(code || "").trim().toLowerCase()); } catch {}
+  try { localStorage.setItem(FLAG, clean(code)); } catch {}
 }
 
 export function forget() {
@@ -35,14 +22,14 @@ export function forget() {
 }
 
 // Used by the "Dev" link on the public site.
-export async function promptDevAndGo() {
-  if (await checkCode(rememberedCode())) {
+export function promptDevAndGo() {
+  if (isDev(rememberedCode())) {
     window.location.href = "./dev.html";
     return;
   }
   const code = window.prompt("Developer access code:");
   if (code === null) return; // they hit cancel
-  if (await checkCode(code)) {
+  if (isDev(code)) {
     remember(code);
     window.location.href = "./dev.html";
   } else {
@@ -51,11 +38,11 @@ export async function promptDevAndGo() {
 }
 
 // Used at the top of dev.html. Returns true if the page should render.
-export async function guardDevPage() {
-  if (await checkCode(rememberedCode())) return true;
+export function guardDevPage() {
+  if (isDev(rememberedCode())) return true;
 
   const code = window.prompt("Developer access code:");
-  if (code !== null && (await checkCode(code))) {
+  if (code !== null && isDev(code)) {
     remember(code);
     return true;
   }
