@@ -240,7 +240,7 @@ main{
 
 <script type="module">
 import { guardDevPage, forget } from "./access.js";
-import { loadStats } from "./stats.js";
+import { loadStats } from "./stats-client.js";
 
 if (await guardDevPage()) {
     document.getElementById("signout").addEventListener("click", () => {
