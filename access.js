@@ -1,50 +1,63 @@
 // Client-side Dev gate for M.O.A - no backend, no worker, no GitHub call.
-// Checks the code right in the browser against a list of accepted codes
-// (two codes = if one ever leaks, swap it out without touching the other)
-// and, if it matches, sends the visitor to dev.html in this same tab.
+// Two-step: asks for code #1, then code #2. BOTH must be correct, in
+// order, before the visitor is let into dev.html.
 
-import { DEV_CODES } from "./dev-codes.js";
+import { DEV_CODE_1, DEV_CODE_2 } from "./dev-codes.js";
 
-const FLAG = "moaDevCode";
+const FLAG = "moaDevPassed";
 
 const clean = (code) => String(code || "").trim().toLowerCase();
-const isDev = (code) => DEV_CODES.map(clean).includes(clean(code));
+const matches = (input, expected) => clean(input) === clean(expected);
 
-function rememberedCode() {
-  try { return localStorage.getItem(FLAG) || ""; } catch { return ""; }
+function alreadyPassed() {
+  try { return localStorage.getItem(FLAG) === "1"; } catch { return false; }
 }
 
-function remember(code) {
-  try { localStorage.setItem(FLAG, clean(code)); } catch {}
+function remember() {
+  try { localStorage.setItem(FLAG, "1"); } catch {}
 }
 
 export function forget() {
   try { localStorage.removeItem(FLAG); } catch {}
 }
 
+// Runs the two prompts in order. Returns true only if both are correct.
+function runTwoStepCheck() {
+  const first = window.prompt("Developer access code (1 of 2):");
+  if (first === null) return false; // cancelled
+  if (!matches(first, DEV_CODE_1)) {
+    window.alert("First code isn't recognized.");
+    return false;
+  }
+
+  const second = window.prompt("Developer access code (2 of 2):");
+  if (second === null) return false; // cancelled
+  if (!matches(second, DEV_CODE_2)) {
+    window.alert("Second code isn't recognized.");
+    return false;
+  }
+
+  return true;
+}
+
 // Used by the "Dev" link on the public site.
 export function promptDevAndGo() {
-  if (isDev(rememberedCode())) {
+  if (alreadyPassed()) {
     window.location.href = "./dev.html";
     return;
   }
-  const code = window.prompt("Developer access code:");
-  if (code === null) return; // they hit cancel
-  if (isDev(code)) {
-    remember(code);
+  if (runTwoStepCheck()) {
+    remember();
     window.location.href = "./dev.html";
-  } else {
-    window.alert("That code isn't recognized.");
   }
 }
 
 // Used at the top of dev.html. Returns true if the page should render.
 export function guardDevPage() {
-  if (isDev(rememberedCode())) return true;
+  if (alreadyPassed()) return true;
 
-  const code = window.prompt("Developer access code:");
-  if (code !== null && isDev(code)) {
-    remember(code);
+  if (runTwoStepCheck()) {
+    remember();
     return true;
   }
   window.location.href = "./index.html";
