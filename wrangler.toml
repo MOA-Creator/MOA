@@ -2,6 +2,9 @@ name = "moa"
 pages_build_output_dir = "public"
 compatibility_date = "2026-09-01"
 
+[vars]
+DEV_CODES_REPO = "MOA-Creator/DevCodes"
+
 [[kv_namespaces]]
 binding = "CHANGELOG"
 id = "2fee35f9135045fda71b39100dd3a04d"
