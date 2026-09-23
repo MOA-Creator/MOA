@@ -444,6 +444,38 @@ section{
     padding-left:18px;
 }
 
+.changelog-btn{
+    position:relative;
+}
+
+.new-badge{
+    position:absolute;
+    top:-9px;
+    right:-9px;
+    min-width:22px;
+    height:22px;
+    padding:0 6px;
+    border-radius:11px;
+    background:#e71919;
+    color:#fff;
+    font-size:14px;
+    font-weight:bold;
+    line-height:22px;
+    text-align:center;
+    box-shadow:0 0 12px rgba(255,0,0,.6);
+    pointer-events:none;
+    animation:badge-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes badge-pulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.15); }
+}
+
+@media (prefers-reduced-motion:reduce){
+    .new-badge{ animation:none; }
+}
+
 .changelog-empty{
     color:#888;
     text-align:center;
@@ -1010,11 +1042,42 @@ async function getEntries() {
     return cachedEntries;
 }
 
+const SEEN_KEY = "moaChangelogSeen";
+
+function entrySignature(entry) {
+    return JSON.stringify([entry.version, entry.date, entry.notes]);
+}
+
+function getSeen() {
+    try { return localStorage.getItem(SEEN_KEY); } catch { return null; }
+}
+
+function setSeen(sig) {
+    try { localStorage.setItem(SEEN_KEY, sig); } catch {}
+}
+
+function showNewMarkers() {
+    document.querySelectorAll(".changelog-btn").forEach((btn) => {
+        if (btn.querySelector(".new-badge")) return;
+        const mark = document.createElement("span");
+        mark.className = "new-badge";
+        mark.textContent = "!";
+        mark.setAttribute("aria-label", "New changelog update");
+        btn.appendChild(mark);
+    });
+}
+
+function clearNewMarkers() {
+    document.querySelectorAll(".new-badge").forEach((el) => el.remove());
+}
+
 getEntries().then((entries) => {
     if (!entries.length) return;
     const badge = document.getElementById("version-badge");
     badge.textContent = `Latest version: v${entries[0].version}`;
     badge.hidden = false;
+
+    if (getSeen() !== entrySignature(entries[0])) showNewMarkers();
 }).catch(() => {});
 
 const modal = document.getElementById("changelog-modal");
@@ -1025,6 +1088,8 @@ document.querySelectorAll(".changelog-btn").forEach((btn) => {
         try {
             const entries = await getEntries();
             renderChangelog(entries);
+            if (entries.length) setSeen(entrySignature(entries[0]));
+            clearNewMarkers();
         } catch (err) {
             document.getElementById("changelog-list").innerHTML =
                 `<p class="changelog-empty">Couldn't load the changelog: ${err.message}</p>`;
