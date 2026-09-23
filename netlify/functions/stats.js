@@ -1,10 +1,3 @@
-// Server-side proxy: reads the GoatCounter token from a Netlify
-// environment variable so it never has to be committed anywhere
-// (public or private repo) and never reaches the browser.
-//
-// Set it in the Netlify dashboard:
-//   Site configuration > Environment variables > GOATCOUNTER_TOKEN
-
 const SITE = "moa";
 const ALLOWED_ORIGIN = "https://moonlight-auto-clicker.runs-on.dev";
 
