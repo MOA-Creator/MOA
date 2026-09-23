@@ -7,8 +7,8 @@
 
 <title>M.O.A - MoonLight Auto Clicker</title>
 
-<meta name="description" content="Download MoonLight Auto Clicker for Windows. A simple, fast and lightweight auto clicker with single click, double click and hold modes.">
-<meta name="keywords" content="MoonLight Auto Clicker, M.O.A, autoclicker, auto clicker download, free auto clicker, Windows auto clicker, mouse auto clicker">
+<meta name="description" content="Download MoonLight Auto Clicker for Windows. A fast, lightweight auto clicker with custom hotkeys, click recording and playback, and full theme customization.">
+<meta name="keywords" content="MoonLight Auto Clicker, M.O.A, autoclicker, auto clicker download, free auto clicker, Windows auto clicker, mouse auto clicker, macro recorder, click recorder">
 <meta name="author" content="M.O.A">
 <meta name="robots" content="index, follow">
 
@@ -259,7 +259,7 @@ section{
 .features,
 .modes{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
     gap:20px;
 }
 
@@ -332,6 +332,125 @@ section{
 .download-box p{
     color:#888;
     margin-bottom:30px;
+}
+
+.version-badge{
+    display:inline-block;
+    padding:5px 13px;
+    border:1px solid #2a2a2a;
+    background:#111;
+    border-radius:999px;
+    color:#888;
+    font-size:13px;
+    margin-bottom:18px;
+}
+
+.download-buttons{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.smartscreen-note{
+    max-width:520px;
+    margin:22px auto 0;
+    padding:14px 18px;
+    background:#0c0c0c;
+    border:1px solid #222;
+    border-radius:12px;
+    color:#888;
+    font-size:14px;
+    text-align:left;
+}
+
+.smartscreen-note strong{
+    color:#ddd;
+}
+
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    z-index:2000;
+    background:rgba(0,0,0,.7);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal-box{
+    width:100%;
+    max-width:560px;
+    max-height:80vh;
+    overflow-y:auto;
+    background:#0c0c0c;
+    border:1px solid #2a2a2a;
+    border-radius:18px;
+    padding:30px;
+    text-align:left;
+}
+
+.modal-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.modal-top h2{
+    font-size:24px;
+}
+
+.modal-close{
+    background:none;
+    border:none;
+    color:#888;
+    font-size:22px;
+    cursor:pointer;
+    line-height:1;
+}
+
+.modal-close:hover{
+    color:#fff;
+}
+
+.changelog-entry{
+    padding:16px 0;
+    border-bottom:1px solid #1f1f1f;
+}
+
+.changelog-entry:last-child{
+    border-bottom:none;
+}
+
+.changelog-entry .cl-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:8px;
+}
+
+.changelog-entry .cl-version{
+    color:#ff2929;
+    font-weight:bold;
+    font-size:17px;
+}
+
+.changelog-entry .cl-date{
+    color:#666;
+    font-size:13px;
+}
+
+.changelog-entry ul{
+    color:#aaa;
+    padding-left:18px;
+}
+
+.changelog-empty{
+    color:#888;
+    text-align:center;
+    padding:30px 0;
 }
 
 .faq{
@@ -557,6 +676,42 @@ footer .dev-link{
 
     </div>
 
+    <div class="card">
+
+        <div class="card-icon">⌨️</div>
+
+        <h3>Custom Hotkey</h3>
+
+        <p>
+            Rebind the start/stop key to whatever fits your workflow.
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-icon">🎬</div>
+
+        <h3>Record &amp; Playback</h3>
+
+        <p>
+            Record a sequence of clicks and replay it back exactly.
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-icon">🎨</div>
+
+        <h3>Custom Themes</h3>
+
+        <p>
+            Pick a preset theme or build your own with the color picker.
+        </p>
+
+    </div>
+
 </div>
 
 </section>
@@ -605,6 +760,16 @@ footer .dev-link{
 
     </div>
 
+    <div class="mode">
+
+        <strong>Hold &amp; Release</strong>
+
+        <p>
+            Alternate between holding and releasing on a timer.
+        </p>
+
+    </div>
+
 </div>
 
 </section>
@@ -623,24 +788,57 @@ footer .dev-link{
 
 <div class="download-box">
 
+    <div class="version-badge" id="version-badge" hidden></div>
+
     <h2>MoonLight Auto Clicker</h2>
 
     <p>
         Free, simple and lightweight.
     </p>
 
-    <a
-        href="./Downloads/MoonLight%20Auto%20Clicker.exe"
-        class="button button-primary"
-        download="MoonLight Auto Clicker.exe"
-        data-goatcounter-click="download"
-    >
-        Download for Windows
-    </a>
+    <div class="download-buttons">
+
+        <a
+            href="./Downloads/MoonLight%20Auto%20Clicker.exe"
+            class="button button-primary"
+            download="MoonLight Auto Clicker.exe"
+            data-goatcounter-click="download"
+        >
+            Download for Windows
+        </a>
+
+        <button type="button" class="button button-secondary" id="changelog-btn">
+            View Changelog
+        </button>
+
+    </div>
+
+    <div class="smartscreen-note">
+        <strong>Seeing a Windows SmartScreen warning?</strong>
+        That's normal for a small independent app without an expensive code-signing
+        certificate, not a sign of malware. Click "More info" then "Run anyway" to continue.
+    </div>
 
 </div>
 
 </section>
+
+<div class="modal-overlay" id="changelog-modal" hidden>
+
+    <div class="modal-box">
+
+        <div class="modal-top">
+            <h2>Changelog</h2>
+            <button type="button" class="modal-close" id="changelog-close" aria-label="Close">&times;</button>
+        </div>
+
+        <div id="changelog-list">
+            <p class="changelog-empty">Loading...</p>
+        </div>
+
+    </div>
+
+</div>
 
 <section id="faq">
 
@@ -687,7 +885,9 @@ footer .dev-link{
         </summary>
 
         <p>
-            MoonLight Auto Clicker supports Single, Double and Hold click modes.
+            MoonLight Auto Clicker supports Single, Double, Hold, and Hold &amp; Release
+            click modes, plus a custom hotkey, click recording and playback, and
+            theme customization.
         </p>
 
     </details>
@@ -700,6 +900,34 @@ footer .dev-link{
 
         <p>
             You can download MoonLight Auto Clicker directly from this website.
+        </p>
+
+    </details>
+
+    <details>
+
+        <summary>
+            Why does Windows show a SmartScreen warning?
+        </summary>
+
+        <p>
+            SmartScreen flags apps that haven't built up enough download reputation
+            yet or don't carry a paid code-signing certificate. It's a caution flag,
+            not a detection of malware. Choose "More info" then "Run anyway" to
+            continue installing.
+        </p>
+
+    </details>
+
+    <details>
+
+        <summary>
+            How do I see what changed in each update?
+        </summary>
+
+        <p>
+            Click "View Changelog" next to the download button to see the full
+            update history.
         </p>
 
     </details>
@@ -745,11 +973,68 @@ footer .dev-link{
 
 <script type="module">
 import { promptDevAndGo } from "./access.js";
+import { loadChangelog } from "./changelog-client.js";
+
 document.querySelectorAll("#dev-link-nav, #dev-link-footer").forEach((el) => {
     el.addEventListener("click", (e) => {
         e.preventDefault();
         promptDevAndGo();
     });
+});
+
+function renderChangelog(entries) {
+    const list = document.getElementById("changelog-list");
+    if (!entries.length) {
+        list.innerHTML = '<p class="changelog-empty">No changelog entries yet.</p>';
+        return;
+    }
+    list.innerHTML = entries.map((entry) => `
+        <div class="changelog-entry">
+            <div class="cl-head">
+                <span class="cl-version">v${entry.version}</span>
+                <span class="cl-date">${entry.date}</span>
+            </div>
+            <ul>
+                ${entry.notes.map((n) => `<li>${n}</li>`).join("")}
+            </ul>
+        </div>
+    `).join("");
+}
+
+let cachedEntries = null;
+
+async function getEntries() {
+    if (cachedEntries) return cachedEntries;
+    cachedEntries = await loadChangelog();
+    return cachedEntries;
+}
+
+getEntries().then((entries) => {
+    if (!entries.length) return;
+    const badge = document.getElementById("version-badge");
+    badge.textContent = `Latest version: v${entries[0].version}`;
+    badge.hidden = false;
+}).catch(() => {});
+
+const modal = document.getElementById("changelog-modal");
+
+document.getElementById("changelog-btn").addEventListener("click", async () => {
+    modal.hidden = false;
+    try {
+        const entries = await getEntries();
+        renderChangelog(entries);
+    } catch (err) {
+        document.getElementById("changelog-list").innerHTML =
+            `<p class="changelog-empty">Couldn't load the changelog: ${err.message}</p>`;
+    }
+});
+
+document.getElementById("changelog-close").addEventListener("click", () => {
+    modal.hidden = true;
+});
+
+modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.hidden = true;
 });
 </script>
 

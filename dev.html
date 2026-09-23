@@ -161,6 +161,148 @@ main{
     margin-bottom:10px;
 }
 
+.section-block{
+    margin-top:60px;
+}
+
+.section-block h2{
+    font-size:26px;
+    margin-bottom:6px;
+}
+
+.section-block > p{
+    color:#888;
+    margin-bottom:22px;
+}
+
+.editor-card{
+    background:#0c0c0c;
+    border:1px solid #1f1f1f;
+    border-radius:16px;
+    padding:26px;
+    margin-bottom:16px;
+}
+
+.field-row{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+}
+
+.field{
+    flex:1;
+    min-width:160px;
+}
+
+.field label{
+    display:block;
+    color:#888;
+    font-size:13px;
+    margin-bottom:6px;
+}
+
+.field input,
+.field textarea{
+    width:100%;
+    background:#111;
+    border:1px solid #2a2a2a;
+    border-radius:8px;
+    color:#fff;
+    padding:10px 12px;
+    font-family:inherit;
+    font-size:14px;
+}
+
+.field textarea{
+    min-height:100px;
+    resize:vertical;
+}
+
+.field input:focus,
+.field textarea:focus{
+    outline:none;
+    border-color:#e71919;
+}
+
+.editor-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.button-danger{
+    border:1px solid #4a1414;
+    background:#1a0808;
+    color:#ff8a8a;
+}
+
+.button-danger:hover{
+    border-color:#e71919;
+    color:#fff;
+}
+
+.entry-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:14px;
+    padding:16px 0;
+    border-bottom:1px solid #1f1f1f;
+}
+
+.entry-row:last-child{
+    border-bottom:none;
+}
+
+.entry-row .entry-head{
+    display:flex;
+    gap:10px;
+    align-items:baseline;
+    margin-bottom:6px;
+}
+
+.entry-row .entry-version{
+    color:#ff2929;
+    font-weight:bold;
+}
+
+.entry-row .entry-date{
+    color:#666;
+    font-size:13px;
+}
+
+.entry-row ul{
+    color:#aaa;
+    padding-left:18px;
+    font-size:14px;
+}
+
+.entry-buttons{
+    display:flex;
+    gap:8px;
+    flex-shrink:0;
+}
+
+.entry-buttons button{
+    padding:6px 12px;
+    font-size:13px;
+}
+
+.status-line{
+    margin-top:14px;
+    font-size:14px;
+    color:#888;
+}
+
+.status-line.ok{
+    color:#5fd68a;
+}
+
+.status-line.error{
+    color:#ff5c5c;
+}
+
 @media(max-width:800px){
 
     .stats{
@@ -236,11 +378,67 @@ main{
         <p id="notice-line2"></p>
     </div>
 
+    <div class="section-block">
+
+        <h2>Changelog editor</h2>
+        <p>Changes here are only visible on the public site after you press "Publish changes".</p>
+
+        <div class="editor-card">
+
+            <div class="field-row">
+
+                <div class="field">
+                    <label for="cl-version">Version</label>
+                    <input type="text" id="cl-version" placeholder="1.4.0">
+                </div>
+
+                <div class="field">
+                    <label for="cl-date">Date</label>
+                    <input type="date" id="cl-date">
+                </div>
+
+            </div>
+
+            <div class="field-row">
+
+                <div class="field">
+                    <label for="cl-notes">Notes (one per line)</label>
+                    <textarea id="cl-notes" placeholder="Added Hold &amp; Release click mode
+Fixed hotkey not saving on close"></textarea>
+                </div>
+
+            </div>
+
+            <div class="editor-actions">
+                <button type="button" class="button" id="cl-add">Add entry</button>
+                <button type="button" class="button" id="cl-cancel-edit" hidden>Cancel edit</button>
+            </div>
+
+        </div>
+
+        <div class="editor-card" id="cl-list-card">
+            <div id="cl-list">
+                <p class="status-line">Loading changelog...</p>
+            </div>
+        </div>
+
+        <div class="editor-actions">
+            <button type="button" class="button" id="cl-publish">Publish changes</button>
+            <button type="button" class="button" id="cl-forget-token">Forget saved admin token</button>
+        </div>
+
+        <p class="status-line" id="cl-status"></p>
+
+    </div>
+
 </main>
 
 <script type="module">
 import { guardDevPage, forget } from "./access.js";
 import { loadStats } from "./stats-client.js";
+import { loadChangelog, saveChangelog } from "./changelog-client.js";
+
+const TOKEN_KEY = "moaChangelogToken";
 
 if (await guardDevPage()) {
     document.getElementById("signout").addEventListener("click", () => {
@@ -262,6 +460,134 @@ if (await guardDevPage()) {
         document.getElementById("notice-line2").textContent =
             "Check the token in goatcounter-config.js has \"Read statistics\" " +
             "permission, and check the browser console (F12) for a CORS error.";
+    }
+
+    let entries = [];
+    let editingIndex = null;
+
+    const listEl = document.getElementById("cl-list");
+    const statusEl = document.getElementById("cl-status");
+    const versionEl = document.getElementById("cl-version");
+    const dateEl = document.getElementById("cl-date");
+    const notesEl = document.getElementById("cl-notes");
+    const addBtn = document.getElementById("cl-add");
+    const cancelBtn = document.getElementById("cl-cancel-edit");
+
+    function setStatus(text, kind) {
+        statusEl.textContent = text;
+        statusEl.className = "status-line" + (kind ? " " + kind : "");
+    }
+
+    function renderList() {
+        if (!entries.length) {
+            listEl.innerHTML = '<p class="status-line">No entries yet. Add one above.</p>';
+            return;
+        }
+        listEl.innerHTML = entries.map((entry, i) => `
+            <div class="entry-row">
+                <div>
+                    <div class="entry-head">
+                        <span class="entry-version">v${entry.version}</span>
+                        <span class="entry-date">${entry.date}</span>
+                    </div>
+                    <ul>
+                        ${entry.notes.map((n) => `<li>${n}</li>`).join("")}
+                    </ul>
+                </div>
+                <div class="entry-buttons">
+                    <button type="button" class="button" data-edit="${i}">Edit</button>
+                    <button type="button" class="button button-danger" data-delete="${i}">Delete</button>
+                </div>
+            </div>
+        `).join("");
+
+        listEl.querySelectorAll("[data-edit]").forEach((btn) => {
+            btn.addEventListener("click", () => startEdit(Number(btn.dataset.edit)));
+        });
+        listEl.querySelectorAll("[data-delete]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                entries.splice(Number(btn.dataset.delete), 1);
+                renderList();
+                setStatus("Entry removed locally. Publish to make it live.", "");
+            });
+        });
+    }
+
+    function startEdit(index) {
+        editingIndex = index;
+        const entry = entries[index];
+        versionEl.value = entry.version;
+        dateEl.value = entry.date;
+        notesEl.value = entry.notes.join("\n");
+        addBtn.textContent = "Update entry";
+        cancelBtn.hidden = false;
+        versionEl.focus();
+    }
+
+    function resetForm() {
+        editingIndex = null;
+        versionEl.value = "";
+        dateEl.value = "";
+        notesEl.value = "";
+        addBtn.textContent = "Add entry";
+        cancelBtn.hidden = true;
+    }
+
+    addBtn.addEventListener("click", () => {
+        const version = versionEl.value.trim().replace(/^v/i, "");
+        const date = dateEl.value;
+        const notes = notesEl.value.split("\n").map((n) => n.trim()).filter(Boolean);
+
+        if (!version || !date || !notes.length) {
+            setStatus("Fill in a version, a date, and at least one note.", "error");
+            return;
+        }
+
+        const entry = { version, date, notes };
+        if (editingIndex === null) {
+            entries.unshift(entry);
+        } else {
+            entries[editingIndex] = entry;
+        }
+        entries.sort((a, b) => (a.date < b.date ? 1 : -1));
+
+        resetForm();
+        renderList();
+        setStatus("Saved locally. Publish to make it live.", "");
+    });
+
+    cancelBtn.addEventListener("click", resetForm);
+
+    document.getElementById("cl-forget-token").addEventListener("click", () => {
+        sessionStorage.removeItem(TOKEN_KEY);
+        setStatus("Admin token forgotten for this tab.", "");
+    });
+
+    document.getElementById("cl-publish").addEventListener("click", async () => {
+        let token = sessionStorage.getItem(TOKEN_KEY);
+        if (!token) {
+            token = window.prompt("Enter the CHANGELOG_ADMIN_TOKEN for this site:");
+            if (!token) return;
+            sessionStorage.setItem(TOKEN_KEY, token);
+        }
+
+        setStatus("Publishing...", "");
+        try {
+            await saveChangelog(entries, token);
+            setStatus("Published. The public site now shows these entries.", "ok");
+        } catch (err) {
+            if (err.message.includes("401") || /token/i.test(err.message)) {
+                sessionStorage.removeItem(TOKEN_KEY);
+            }
+            setStatus("Publish failed: " + err.message, "error");
+        }
+    });
+
+    try {
+        entries = await loadChangelog();
+        renderList();
+    } catch (err) {
+        listEl.innerHTML = `<p class="status-line error">Couldn't load the changelog: ${err.message}</p>`;
     }
 }
 </script>
