@@ -1,7 +1,3 @@
-// Client-side Dev gate for M.O.A - no backend, no worker, no GitHub call.
-// Two-step: asks for code #1, then code #2. BOTH must be correct, in
-// order, before the visitor is let into dev.html.
-
 import { DEV_CODE_1, DEV_CODE_2 } from "./dev-codes.js";
 
 const FLAG = "moaDevPassed";
