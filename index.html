@@ -604,6 +604,10 @@ footer .dev-link{
             Download MoonLight Auto Clicker
         </a>
 
+        <button type="button" class="button button-secondary changelog-btn">
+            View Changelog
+        </button>
+
         <a
             href="#features"
             class="button button-secondary"
@@ -807,7 +811,7 @@ footer .dev-link{
             Download for Windows
         </a>
 
-        <button type="button" class="button button-secondary" id="changelog-btn">
+        <button type="button" class="button button-secondary changelog-btn" id="changelog-btn">
             View Changelog
         </button>
 
@@ -1018,15 +1022,17 @@ getEntries().then((entries) => {
 
 const modal = document.getElementById("changelog-modal");
 
-document.getElementById("changelog-btn").addEventListener("click", async () => {
-    modal.hidden = false;
-    try {
-        const entries = await getEntries();
-        renderChangelog(entries);
-    } catch (err) {
-        document.getElementById("changelog-list").innerHTML =
-            `<p class="changelog-empty">Couldn't load the changelog: ${err.message}</p>`;
-    }
+document.querySelectorAll(".changelog-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+        modal.hidden = false;
+        try {
+            const entries = await getEntries();
+            renderChangelog(entries);
+        } catch (err) {
+            document.getElementById("changelog-list").innerHTML =
+                `<p class="changelog-empty">Couldn't load the changelog: ${err.message}</p>`;
+        }
+    });
 });
 
 document.getElementById("changelog-close").addEventListener("click", () => {
